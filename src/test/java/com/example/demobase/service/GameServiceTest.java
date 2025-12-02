@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,8 +54,28 @@ class GameServiceTest {
 
     @Test
     void testStartGame_Success() {
-        // TODO: Implementar el test para testStartGame_Success
-        
+        // Given
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+        when(wordRepository.findRandomWord()).thenReturn(Optional.of(word));
+        when(gameInProgressRepository.findByJugadorAndPalabra(1L, 1L)).thenReturn(Optional.empty());
+        when(wordRepository.save(any(Word.class))).thenReturn(word);
+        when(gameInProgressRepository.save(any(GameInProgress.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        GameResponseDTO result = gameService.startGame(1L);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("___________", result.getPalabraOculta()); // PROGRAMADOR tiene 11 letras
+        assertEquals(0, result.getLetrasIntentadas().size());
+        assertEquals(7, result.getIntentosRestantes());
+        assertFalse(result.getPalabraCompleta());
+        assertEquals(0, result.getPuntajeAcumulado());
+
+        verify(playerRepository, times(1)).findById(1L);
+        verify(wordRepository, times(1)).findRandomWord();
+        verify(wordRepository, times(1)).save(any(Word.class));
+        verify(gameInProgressRepository, times(1)).save(any(GameInProgress.class));
     }
 
     @Test
@@ -219,4 +238,3 @@ class GameServiceTest {
         verify(gameInProgressRepository, never()).save(any(GameInProgress.class));
     }
 }
-

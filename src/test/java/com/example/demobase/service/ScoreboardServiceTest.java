@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -88,7 +89,7 @@ class ScoreboardServiceTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
-        
+
         ScoreboardDTO player1Stats = result.get(0);
         assertEquals(1L, player1Stats.getIdJugador());
         assertEquals("Juan Pérez", player1Stats.getNombreJugador());
@@ -109,8 +110,25 @@ class ScoreboardServiceTest {
 
     @Test
     void testGetScoreboardByPlayer_Success() {
-        // TODO: Implementar el test para testGetScoreboardByPlayer_Success
-        
+        // Given
+        List<Game> player1Games = Arrays.asList(game1, game2, game3);
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player1));
+        when(gameRepository.findByJugador(player1)).thenReturn(player1Games);
+
+        // When
+        ScoreboardDTO result = scoreboardService.getScoreboardByPlayer(1L);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1L, result.getIdJugador());
+        assertEquals("Juan Pérez", result.getNombreJugador());
+        assertEquals(45, result.getPuntajeTotal());
+        assertEquals(3L, result.getPartidasJugadas());
+        assertEquals(2L, result.getPartidasGanadas());
+        assertEquals(1L, result.getPartidasPerdidas());
+
+        verify(playerRepository, times(1)).findById(1L);
+        verify(gameRepository, times(1)).findByJugador(player1);
     }
 
     @Test
@@ -131,6 +149,7 @@ class ScoreboardServiceTest {
         Game highScoreGame = new Game();
         highScoreGame.setJugador(highScorePlayer);
         highScoreGame.setPuntaje(100);
+        highScoreGame.setResultado("GANADO");
 
         List<Player> players = Arrays.asList(player1, highScorePlayer);
         when(playerRepository.findAll()).thenReturn(players);
@@ -147,4 +166,3 @@ class ScoreboardServiceTest {
         assertTrue(result.get(0).getPuntajeTotal() >= result.get(1).getPuntajeTotal());
     }
 }
-
