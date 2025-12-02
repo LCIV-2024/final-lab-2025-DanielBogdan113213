@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WordDTO {
-    private Long id;
-    private String palabra;
-    private Boolean utilizada;
+public class GuessRequestDTO {
+    private Long idJugador;
+    private Character letra;
 }
-
